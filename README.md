@@ -24,7 +24,7 @@ Neighbor stats extension started...
 The nstats.ixi module exposes a new API command `getHealth`. You have to specify an additional `threshold` which will be taken into account for showing up your neighbor's health stats.
 
 ```
-curl http://localhost:14265 -X POST -H 'Content-Type: application/json'   -d '{"command": "nstats.getHealth", "threshold": 500}' | python -m json.tool
+curl http://localhost:14265 -X POST -H 'Content-Type: application/json' -d '{"command": "nstats.getHealth", "threshold": 500}' | python -m json.tool
 ```
 
 -----
