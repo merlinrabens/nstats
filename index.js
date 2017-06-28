@@ -7,20 +7,20 @@ var iota = iri.IRI.iota;
 
 print("Neighbor stats extension started... ");
 
-var nbRandomTxs = {};
+var nbAllTxs = {};
 
 var timer = new Timer();
 timer.scheduleAtFixedRate(function() {
   getNeighbors().stream().forEach(function (nb) {
-	var queue = nbRandomTxs[nb.getAddress().toString()];
+	var queue = nbAllTxs[nb.getAddress().toString()];
 	if (queue == null) {
 		queue = [];
 	}
 	if (queue.length >= 100) {
 		queue.shift();
 	}
-	queue.push(nb.getNumberOfRandomTransactionRequests());
-	nbRandomTxs[nb.getAddress().toString()] = queue;
+	queue.push(nb.getNumberOfAllTransactions());
+	nbAllTxs[nb.getAddress().toString()] = queue;
   });
 }, 0, 3000);
 
@@ -40,11 +40,11 @@ function getHealth(request) {
     return Error.create("You have to define a `threshold` > 0");
   }	
   var out = getNeighbors().stream().map(function (nb) {
-    var sma = calcSma(nbRandomTxs[nb.getAddress().toString()]);
+    var sma = calcSma(nbAllTxs[nb.getAddress().toString()]);
 	res = {
       address: nb.getAddress().toString(),
       health: sma > threshold ? "GOOD" : "BAD",
-	  randomTxsSma: Math.round(sma)
+	  allTxsSma: Math.floor(sma).toFixed()
     }
     return res;
   }).toArray();

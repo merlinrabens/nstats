@@ -1,12 +1,21 @@
-# nstats.ixi
+# nstats
 Neighbor Health Stats - an IOTA Extension Interface
 
-This IRI extension (IXI) provides a mechanism on continuously get the neighbor's health statistics out of your [IRI](https://github.com/iotaledger/iri) node.
+This IRI extension (IXI) provides a mechanism for continuously fetching the neighbor's health statistics from of your [IRI](https://github.com/iotaledger/iri) node.
 
 ## Setup
 
-1. Create a subfolder in your `ixi` folder.
+1. Create subfolder `nstats` in your `ixi` folder.
 2. Copy package.json and index.js into the new folder.
+
+**or**
+
+Clone the repository directly in your `ixi` folder by doing the following:
+
+```bash
+cd ixi
+git clone https://github.com/bluedigits/nstats
+```
 
 The hot-plug mechanism should load the IXI module which should be shown in your IRI node log.
 
