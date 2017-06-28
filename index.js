@@ -12,15 +12,21 @@ var nbAllTxs = {};
 var timer = new Timer();
 timer.scheduleAtFixedRate(function() {
   getNeighbors().stream().forEach(function (nb) {
-	var queue = nbAllTxs[nb.getAddress().toString()];
-	if (queue == null) {
-		queue = [];
-	}
-	if (queue.length >= 100) {
-		queue.shift();
-	}
-	queue.push(nb.getNumberOfAllTransactions());
-	nbAllTxs[nb.getAddress().toString()] = queue;
+    var queue = nbAllTxs[nb.getAddress().toString()];
+    var lastVal = 0;
+    if (queue == null) {
+      queue = [];
+    }
+    var lastIndex = queue.length - 1;
+    if (lastIndex >= 99) {
+      queue.shift();
+    }
+    if (lastIndex < 0) {
+      queue.push(nb.getNumberOfAllTransactions());
+    } else {
+      queue.push(nb.getNumberOfAllTransactions() - sum(queue));
+    }
+    nbAllTxs[nb.getAddress().toString()] = queue;
   });
 }, 0, 3000);
 
@@ -29,8 +35,11 @@ function getNeighbors() {
 }
 
 function calcSma(array) {
-  var sum = array.reduce(function(a, b) { return a + b; }, 0);
-  return sum / array.length;
+  return sum(array) / array.length;
+}
+
+function sum(array) {
+  return array.reduce(function(a, b) { return a + b; }, 0);
 }
 
 function getHealth(request) {
@@ -41,10 +50,10 @@ function getHealth(request) {
   }	
   var out = getNeighbors().stream().map(function (nb) {
     var sma = calcSma(nbAllTxs[nb.getAddress().toString()]);
-	res = {
+    res = {
       address: nb.getAddress().toString(),
       health: sma > threshold ? "GOOD" : "BAD",
-	  allTxsSma: Math.floor(sma).toFixed()
+      allTxsSma: Math.floor(sma).toFixed()
     }
     return res;
   }).toArray();
