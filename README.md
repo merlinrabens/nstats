@@ -1,7 +1,7 @@
 # nstats
 Neighbor Health Stats - an IOTA Extension Interface
 
-This IRI extension (IXI) provides a mechanism for continuously fetching the neighbor's health statistics from of your [IRI](https://github.com/iotaledger/iri) node.
+This IRI extension (IXI) provides a mechanism for continuously fetching the neighbor's health statistics from your [IRI](https://github.com/iotaledger/iri) node.
 
 ## What it Does
 The extension fetches every 3 seconds the no. of transactions that are mutually exchanged between our node and a particular neighbor node. From all values of the last 5 minutes a simple moving average (SMA) get's calculated and displayed when the API call get's triggered.
