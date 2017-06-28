@@ -1,5 +1,5 @@
 # nstats
-Neighbor Health Stats - an IOTA Extension Interface
+Neighbor Health Stats - an IOTA Extension Interface module
 
 This IRI extension (IXI) provides a mechanism for continuously fetching the neighbor's health statistics from your [IRI](https://github.com/iotaledger/iri) node.
 
