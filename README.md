@@ -62,7 +62,7 @@ The nstats IXI module exposes the following API commands:
    
    **Params:** You have to define a `threshold` > 0.
    
-   **Default:** Default `threshold` is 1 if not set.
+   **Default:** Default `threshold` is 1 if not set specifically.
 
    **Sample Call:**
 
@@ -73,7 +73,7 @@ The nstats IXI module exposes the following API commands:
 
 *  *getRemoveTimeInterval:*
 
-   **Description:** Gets the currently set time interval for checking potentially bad neighbors.
+   **Description:** Gets the currently set time interval for checking potentially bad neighbors. Time unit is *milliseconds*.
    
    **Sample Call:**
 
@@ -84,10 +84,12 @@ The nstats IXI module exposes the following API commands:
 
 *  *setRemoveTimeInterval:*
 
-   **Description:** Sets the time interval for checking potentially bad neighbors.
+   **Description:** Sets the time interval for checking potentially bad neighbors. Time unit is *milliseconds*.
    
    **Params:** You have to specifiy a `timeInterval` >= 1000 which states a neighbors health as *BAD* if not reached.
    
+   **Default:** Default `timeInterval` is 300000 milliseconds if not set specifically.
+
    **Sample Call:**
 
    ```bash
