@@ -113,7 +113,7 @@ function setRemoveTimeInterval(request) {
   var timeInterval;
   timeInterval = request.get("timeInterval");
   if (timeInterval == null || Number(timeInterval) < 1000) {
-    return Error.create("You have to define a `timeInterval` > 1000");
+    return Error.create("You have to define a `timeInterval` >= 1000");
   }
   globalRemoveTimeInterval = timeInterval;
   initRemoveNbTimer(true);
