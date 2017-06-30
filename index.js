@@ -13,6 +13,7 @@ var globalRemoveThreshold = 1;
 var globalRemoveTimeInterval = 300000;
 
 var nbAllTxs = {};
+var knownNeighbors = getNeighbors();
 
 var calcNbHealthTimer = null;
 var removeNbTimer = null;
@@ -53,12 +54,16 @@ function initRemoveNbTimer(reset) {
   removeNbTimer = new Timer();
   removeNbTimer.scheduleAtFixedRate(function() {
     getNeighbors().stream().forEach(function (nb) {
-      if (nbAllTxs[nb] != null) {
-                  var sma = calcSma(nbAllTxs[nb]);
-                  if (Math.floor(sma).toFixed() < globalRemoveThreshold) {
-                        removeNeighbor(nb);
-                  }
+      if (!knownNeighbors.contains(nb)) {
+        knownNeighbors.add(nb);
+      } else {
+        if (nbAllTxs[nb] != null) {
+          var sma = calcSma(nbAllTxs[nb]);
+            if (Math.floor(sma).toFixed() < globalRemoveThreshold) {
+              removeNeighbor(nb);
+            }
           }
+        }
     });
   }, 0, globalRemoveTimeInterval);
 }
@@ -74,7 +79,8 @@ function removeNeighbor(neighbor) {
   print("Health of neighbor '" + neighbor.getAddress().toString() + "' became BAD. Going to remove... ");
   var success = iota.node.removeNeighbor(nbUri, true);
   if (success) {
-        delete nbAllTxs[neighbor];
+    delete nbAllTxs[neighbor];
+    knownNeighbors.remove(neighbor);
     print("Successfully removed neighbor '" + neighbor.getAddress().toString() + "'.");
   } else {
     print("Attempt to remove neighbor '" + neighbor.getAddress().toString() + "' failed.");
@@ -113,7 +119,7 @@ function setRemoveTimeInterval(request) {
   var timeInterval;
   timeInterval = request.get("timeInterval");
   if (timeInterval == null || Number(timeInterval) < 1000) {
-    return Error.create("You have to define a `timeInterval` > 1000");
+    return Error.create("You have to define a `timeInterval` >= 1000");
   }
   globalRemoveTimeInterval = timeInterval;
   initRemoveNbTimer(true);
@@ -151,4 +157,3 @@ API.put("setRemoveTimeInterval", new Callable({ call: setRemoveTimeInterval }));
 initCalcNbHealthTimer(false);
 initRemoveNbTimer(false);
 logSettings();
-
