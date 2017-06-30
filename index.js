@@ -13,6 +13,7 @@ var globalRemoveThreshold = 1;
 var globalRemoveTimeInterval = 300000;
 
 var nbAllTxs = {};
+var knownNeighbors = getNeighbors();
 
 var calcNbHealthTimer = null;
 var removeNbTimer = null;
@@ -40,10 +41,14 @@ function initRemoveNbTimer(reset) {
   removeNbTimer = new Timer();
   removeNbTimer.scheduleAtFixedRate(function() {
     getNeighbors().stream().forEach(function (nb) {
-      if (nbAllTxs[nb] != null) {
-        var sma = calcSma(nbAllTxs[nb]);
-          if (Math.floor(sma).toFixed() < globalRemoveThreshold) {
+      if (!knownNeighbors.contains(nb)) {
+        knownNeighbors.add(nb);
+      } else {
+        if (nbAllTxs[nb] != null) {
+          var sma = calcSma(nbAllTxs[nb]);
+            if (Math.floor(sma).toFixed() < globalRemoveThreshold) {
               removeNeighbor(nb);
+            }
           }
         }
     });
@@ -76,6 +81,7 @@ function removeNeighbor(neighbor) {
   var success = iota.node.removeNeighbor(nbUri, true);
   if (success) {
     delete nbAllTxs[neighbor];
+    knownNeighbors.remove(neighbor);
     print("Successfully removed neighbor '" + neighbor.getAddress().toString() + "'.");
   } else {
     print("Attempt to remove neighbor '" + neighbor.getAddress().toString() + "' failed.");
