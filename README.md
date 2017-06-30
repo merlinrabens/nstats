@@ -7,10 +7,11 @@ This IRI extension (IXI) provides a mechanism for continuously checking health o
 The extension fetches every 3 seconds the no. of transactions that are mutually exchanged between your node and all of your neighbors. When a particular neighbor sends not enough transactions anymore (e.g. due to an outage or a network problem), his average transaction rate will fall below a configurable threshold which triggers the automatic removal of this particular neighbor. The removal will remain until the next restart of your IRI node.
 
 ## Setup
-1. Create subfolder `nstats` in your `ixi` folder.
-2. Copy package.json and index.js into the new folder.
+Create subfolder `nstats` in your `ixi` folder and copy `package.json` and `index.js` into the new folder.
 
-**or** clone the repository directly in your `ixi` folder by doing the following:
+**or**
+
+clone the repository directly in your `ixi` folder by doing the following:
 
 ```bash
 cd ixi
