@@ -33,9 +33,9 @@ Neighbor stats extension started...
 ## Usage
 The nstats IXI module exposes the following API commands:
 
-*  *getHealth:*
+*  **getHealth:**
 
-   **Description:** From all values of the last 5 minutes a simple moving average (SMA) get's calculated and displayed when the API call get's triggered.
+   *Description:* From all values of the last 5 minutes a simple moving average (SMA) get's calculated and displayed when the API call get's triggered.
    
    **Params:** You have to specifiy a `threshold` which states a neighbors health as *BAD* if not reached.
    
@@ -43,7 +43,7 @@ The nstats IXI module exposes the following API commands:
 
    ```bash
    curl http://localhost:14265 -X POST -H 'Content-Type: application/json' \
-   -d '{"command": "nstats.getHealth", "threshold": 500}' | python -m json.tool
+   -d '{"command": "nstats.getHealth", "threshold": 1}' | python -m json.tool
    ```
 
 *  *getRemoveThreshold:*

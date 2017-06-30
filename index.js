@@ -13,7 +13,6 @@ var globalRemoveThreshold = 1;
 var globalRemoveTimeInterval = 300000;
 
 var nbAllTxs = {};
-var knownNeighbors = getNeighbors();
 
 var calcNbHealthTimer = null;
 var removeNbTimer = null;
@@ -29,20 +28,7 @@ function initCalcNbHealthTimer(reset) {
   calcNbHealthTimer = new Timer();
   calcNbHealthTimer.scheduleAtFixedRate(function() {
     getNeighbors().stream().forEach(function (nb) {
-      var queue = nbAllTxs[nb];
-      if (queue == null) {
-        queue = [];
-      }
-      var lastIndex = queue.length - 1;
-      if (lastIndex >= 99) {
-        queue.shift();
-      }
-      if (lastIndex < 0) {
-        queue.push(nb.getNumberOfAllTransactions());
-      } else {
-        queue.push(nb.getNumberOfAllTransactions() - sum(queue));
-      }
-      nbAllTxs[nb] = queue;
+      normalizeRingBuffer(nb);
     });
   }, 0, 3000);
 }
@@ -54,18 +40,28 @@ function initRemoveNbTimer(reset) {
   removeNbTimer = new Timer();
   removeNbTimer.scheduleAtFixedRate(function() {
     getNeighbors().stream().forEach(function (nb) {
-      if (!knownNeighbors.contains(nb)) {
-        knownNeighbors.add(nb);
-      } else {
-        if (nbAllTxs[nb] != null) {
-          var sma = calcSma(nbAllTxs[nb]);
-            if (Math.floor(sma).toFixed() < globalRemoveThreshold) {
+      if (nbAllTxs[nb] != null) {
+        var sma = calcSma(nbAllTxs[nb]);
+          if (Math.floor(sma).toFixed() < globalRemoveThreshold) {
               removeNeighbor(nb);
-            }
           }
         }
     });
   }, 0, globalRemoveTimeInterval);
+}
+
+function normalizeRingBuffer(neighbor) {
+  var queue = nbAllTxs[neighbor];
+  if (queue == null) {
+    queue = [];
+    queue.start = neighbor.getNumberOfAllTransactions();
+  }
+  var lastIndex = queue.length - 1;
+  if (lastIndex >= 99) {
+    queue.start += queue.shift();
+  }
+  queue.push(neighbor.getNumberOfAllTransactions() - queue.start - sum(queue));
+  nbAllTxs[neighbor] = queue;
 }
 
 function getNeighbors() {
@@ -80,7 +76,6 @@ function removeNeighbor(neighbor) {
   var success = iota.node.removeNeighbor(nbUri, true);
   if (success) {
     delete nbAllTxs[neighbor];
-    knownNeighbors.remove(neighbor);
     print("Successfully removed neighbor '" + neighbor.getAddress().toString() + "'.");
   } else {
     print("Attempt to remove neighbor '" + neighbor.getAddress().toString() + "' failed.");
