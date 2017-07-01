@@ -30,7 +30,24 @@ The hot-plug mechanism should load the IXI module which should be shown in your 
 Neighbor stats extension started...
 ```
 
-If a neighbor's health becomes bad you will see the following output in your log:
+## Example
+
+If you're utilizing the *getHealth* command you might get a response similiar to the following:
+
+```json
+{
+    "duration": 1,
+    "ixi": [
+        {
+            "address": "example_neighbor/1.2.3.4:12345",
+            "allTxsSma": "0",
+            "health": "BAD"
+        }
+    ]
+}
+```
+
+This would mean, the health of your neighbor **example_neighbor** became bad, hence it's going to be removed from your neighbor list during the next check cycle (interval depends on your **timeInterval** setting). Then, you will see the following output in your log:
 
 ```
 Health of neighbor 'example_neighbor/1.2.3.4:12345' became BAD. Going to remove...
