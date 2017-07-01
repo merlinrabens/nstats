@@ -30,6 +30,13 @@ The hot-plug mechanism should load the IXI module which should be shown in your 
 Neighbor stats extension started...
 ```
 
+If a neighbor's health becomes bad you will see the following output in your log:
+
+```
+Health of neighbor 'example_neighbor/1.2.3.4:12345' became BAD. Going to remove...
+Successfully removed neighbor 'example_neighbor/1.2.3.4:12345'.
+```
+
 ## Usage
 The nstats IXI module exposes the following API commands:
 
