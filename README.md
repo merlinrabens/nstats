@@ -4,7 +4,7 @@ Neighbor Health Stats - an IOTA Extension Interface
 This IRI extension (IXI) provides a mechanism for continuously checking health of your [IRI](https://github.com/iotaledger/iri) node's neighbors.
 
 ## What it Does
-The extension fetches every 3 seconds the no. of transactions that are mutually exchanged between your node and all of your neighbors. When a particular neighbor sends not enough transactions anymore (e.g. due to an outage or a network problem), his average transaction rate will fall below a configurable threshold which triggers the automatic removal of this particular neighbor. The removal will remain until the next restart of your IRI node.
+The extension monitors the no. of transactions that are mutually exchanged between your node your neighbor nodes. When a particular neighbor sends not enough transactions anymore (e.g. due to an outage or a network problem), his average transaction rate will fall below a configurable threshold which triggers the automatic removal of this particular neighbor. The removal will remain until the next restart of your IRI node or until you add the removed neighbors by invoking the corresponding API command..
 
 ## Setup
 Create subfolder `nstats` in your `ixi` folder and copy `package.json` and `index.js` into the new folder.
@@ -95,7 +95,7 @@ The nstats IXI module exposes the following API commands:
 
    ```bash
    curl http://localhost:14265 -X POST -H 'Content-Type: application/json' \
-   -d '{"command": "nstats.setRemoveTimeInterval", "timeInterval": 1000}' | python -m json.tool
+   -d '{"command": "nstats.setRemoveTimeInterval", "timeInterval": 30000}' | python -m json.tool
    ```
 
 -----

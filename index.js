@@ -1,11 +1,11 @@
 var iri = com.iota.iri;
+var iota = iri.IRI.iota;
 var Callable = iri.service.CallableRequest;
 var Response = iri.service.dto.IXIResponse;
 var Error = iri.service.dto.ErrorResponse;
 var Timer = Java.type("java.util.Timer");
 var URI = Java.type("java.net.URI");
 var TCPNeighbor = Java.type("com.iota.iri.network.TCPNeighbor");
-var iota = iri.IRI.iota;
 
 print("Neighbor stats extension started... ");
 
@@ -13,13 +13,12 @@ var globalRemoveThreshold = 1;
 var globalRemoveTimeInterval = 300000;
 
 var nbAllTxs = {};
-var knownNeighbors = getNeighbors();
 
-var calcNbHealthTimer = null;
-var removeNbTimer = null;
+var calcNbHealthTimer;
+var removeNbTimer;
 
 function logSettings() {
-  print("NSTATS: Remove neighbors sending less than " + globalRemoveThreshold + " transactions all 3 seconds on average. Removing neighbors will be triggered all " + globalRemoveTimeInterval + " milliseconds.");
+  print("NSTATS: Checking for BAD neighbors every " + globalRemoveTimeInterval + " milliseconds. Threshold: At least " + globalRemoveThreshold + " transaction(s) on average every 3 seconds.");
 }
 
 function initCalcNbHealthTimer(reset) {
@@ -41,16 +40,12 @@ function initRemoveNbTimer(reset) {
   removeNbTimer = new Timer();
   removeNbTimer.scheduleAtFixedRate(function() {
     getNeighbors().stream().forEach(function (nb) {
-      if (!knownNeighbors.contains(nb)) {
-        knownNeighbors.add(nb);
-      } else {
-        if (nbAllTxs[nb] != null) {
-          var sma = calcSma(nbAllTxs[nb]);
-            if (Math.floor(sma).toFixed() < globalRemoveThreshold) {
-              removeNeighbor(nb);
-            }
-          }
+      if (nbAllTxs[nb] != null) {
+        var sma = calcSma(nbAllTxs[nb]);
+        if (Math.floor(sma).toFixed() < globalRemoveThreshold) {
+          removeNeighbor(nb);
         }
+      }
     });
   }, 0, globalRemoveTimeInterval);
 }
@@ -69,10 +64,6 @@ function normalizeRingBuffer(neighbor) {
   nbAllTxs[neighbor] = queue;
 }
 
-function getNeighbors() {
- return iota.node.getNeighbors();
-}
-
 function removeNeighbor(neighbor) {
   var protocol = neighbor instanceof TCPNeighbor ? "tcp://" : "udp://";
   var port = neighbor.getAddress().getPort();
@@ -81,11 +72,14 @@ function removeNeighbor(neighbor) {
   var success = iota.node.removeNeighbor(nbUri, true);
   if (success) {
     delete nbAllTxs[neighbor];
-    knownNeighbors.remove(neighbor);
     print("Successfully removed neighbor '" + neighbor.getAddress().toString() + "'.");
   } else {
     print("Attempt to remove neighbor '" + neighbor.getAddress().toString() + "' failed.");
   }
+}
+
+function getNeighbors() {
+ return iota.node.getNeighbors();
 }
 
 function calcSma(array) {
