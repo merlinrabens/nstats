@@ -4,7 +4,7 @@ Neighbor Health Stats - an IOTA Extension Interface module
 This IRI extension (IXI) provides a mechanism for continuously checking health of your [IRI](https://github.com/iotaledger/iri) node's neighbors.
 
 ## What it Does
-The extension monitors the no. of transactions that are mutually exchanged between your node your neighbor nodes. When a particular neighbor sends not enough transactions anymore (e.g. due to an outage or a network problem), his average transaction rate will fall below a configurable threshold which triggers the automatic removal of this particular neighbor. The removal will remain until the next restart of your IRI node or until you add the removed neighbors by invoking the corresponding API command..
+The extension monitors the no. of transactions that are mutually exchanged between your node your neighbor nodes. When a particular neighbor sends not enough transactions anymore (e.g. due to an outage or a network problem), his average transaction rate will fall below a configurable threshold which triggers the automatic removal of this particular neighbor. Removed neighbors are checked for availability every 10 seconds. If a removed neighbor node is up, it will be added again. Removed neighbors are checked up to 24 hrs until they are given up.
 
 ## Setup
 Create subfolder `nstats` in your `ixi` folder and copy `package.json` and `index.js` into the new folder.
@@ -50,8 +50,8 @@ If you're utilizing the *getHealth* command you might get a response similiar to
 This would mean, the health of your neighbor **example_neighbor** became bad, hence it's going to be removed from your neighbor list during the next check cycle (interval depends on your **timeInterval** setting). Then, you will see the following output in your log:
 
 ```
-Health of neighbor 'example_neighbor/1.2.3.4:12345' became BAD. Going to remove...
-Successfully removed neighbor 'example_neighbor/1.2.3.4:12345'.
+NSTATS: Health of neighbor 'example_neighbor/1.2.3.4:12345' became BAD. Going to remove...
+NSTATS: Successfully removed neighbor 'example_neighbor/1.2.3.4:12345'.
 ```
 
 ## Usage
@@ -121,6 +121,16 @@ The nstats IXI module exposes the following API commands:
    curl http://localhost:14265 -X POST -H 'Content-Type: application/json' \
    -d '{"command": "nstats.setRemoveTimeInterval", "timeInterval": 30000}' | python -m json.tool
    ```
+## Automatic Neighbor Availability Check
+
+If a neighbor was removed and becomes available again you might see a log output similar to the following:
+
+```
+NSTATS: Neighbor '14.red-213-97-163.staticip.rima-tde.net/213.97.163.14:14600' seems to be available again. Going to add...
+NSTATS: Successfully added neighbor '14.red-213-97-163.staticip.rima-tde.net/213.97.163.14:14600'.
+```
+
+This simply means you are going to mutually exchange transactions with this neighbor again.
 
 -----
 
