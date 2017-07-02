@@ -1,10 +1,10 @@
 var iri = com.iota.iri;
-var iota = iri.IRI.iota;
 var Callable = iri.service.CallableRequest;
 var Response = iri.service.dto.IXIResponse;
 var Error = iri.service.dto.ErrorResponse;
 var Timer = Java.type("java.util.Timer");
 var URI = Java.type("java.net.URI");
+var Runnable = Java.type("java.lang.Runnable");
 var TCPNeighbor = Java.type("com.iota.iri.network.TCPNeighbor");
 
 print("Neighbor stats extension started... ");
@@ -22,11 +22,11 @@ function logSettings() {
 }
 
 function initCalcNbHealthTimer(reset) {
-  if (reset && calcNbHealthTimer != null) {
+  if (reset && calcNbHealthTimer != undefined) {
     calcNbHealthTimer.cancel();
   }
   calcNbHealthTimer = new Timer();
-  calcNbHealthTimer.scheduleAtFixedRate(function() {
+  calcNbHealthTimer.schedule(function() {
     getNeighbors().stream().forEach(function (nb) {
       normalizeRingBuffer(nb);
     });
@@ -34,15 +34,16 @@ function initCalcNbHealthTimer(reset) {
 }
 
 function initRemoveNbTimer(reset) {
-  if (reset && removeNbTimer != null) {
+  if (reset && removeNbTimer != undefined) {
     removeNbTimer.cancel();
   }
   removeNbTimer = new Timer();
-  removeNbTimer.scheduleAtFixedRate(function() {
+  removeNbTimer.schedule(function() {
     getNeighbors().stream().forEach(function (nb) {
       if (nbAllTxs[nb] != null) {
         var sma = calcSma(nbAllTxs[nb]);
-        if (Math.floor(sma).toFixed() < globalRemoveThreshold) {
+		var timeDiff = Date.now() - nbAllTxs[nb].startTime;
+        if (Math.floor(sma).toFixed() < globalRemoveThreshold && timeDiff >= globalRemoveTimeInterval) {
           removeNeighbor(nb);
         }
       }
@@ -54,13 +55,14 @@ function normalizeRingBuffer(neighbor) {
   var queue = nbAllTxs[neighbor];
   if (queue == null) {
     queue = [];
-    queue.start = neighbor.getNumberOfAllTransactions();
+	queue.startTime = Date.now();
+    queue.noOfAllTxs = neighbor.getNumberOfAllTransactions();
   }
   var lastIndex = queue.length - 1;
   if (lastIndex >= 99) {
-    queue.start += queue.shift();
+    queue.noOfAllTxs += queue.shift();
   }
-  queue.push(neighbor.getNumberOfAllTransactions() - queue.start - sum(queue));
+  queue.push(neighbor.getNumberOfAllTransactions() - queue.noOfAllTxs - sum(queue));
   nbAllTxs[neighbor] = queue;
 }
 
@@ -69,7 +71,7 @@ function removeNeighbor(neighbor) {
   var port = neighbor.getAddress().getPort();
   var nbUri = new URI(protocol + neighbor.getAddress().getHostName() + ":" + port);
   print("Health of neighbor '" + neighbor.getAddress().toString() + "' became BAD. Going to remove... ");
-  var success = iota.node.removeNeighbor(nbUri, true);
+  var success = IOTA.node.removeNeighbor(nbUri, true);
   if (success) {
     delete nbAllTxs[neighbor];
     print("Successfully removed neighbor '" + neighbor.getAddress().toString() + "'.");
@@ -79,7 +81,7 @@ function removeNeighbor(neighbor) {
 }
 
 function getNeighbors() {
- return iota.node.getNeighbors();
+ return IOTA.node.getNeighbors();
 }
 
 function calcSma(array) {
@@ -151,4 +153,14 @@ API.put("setRemoveTimeInterval", new Callable({ call: setRemoveTimeInterval }));
 
 initCalcNbHealthTimer(false);
 initRemoveNbTimer(false);
+IXICycle.put("shutdown", new Runnable( function() {
+  if (calcNbHealthTimer != undefined) {
+	calcNbHealthTimer.cancel();
+	calcNbHealthTimer.purge();
+  }
+  if (removeNbTimer != undefined) {
+	removeNbTimer.cancel();
+	removeNbTimer.purge();
+  }
+}));
 logSettings();
