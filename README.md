@@ -126,8 +126,8 @@ The nstats IXI module exposes the following API commands:
 If a neighbor was removed and becomes available again you might see a log output similar to the following:
 
 ```
-NSTATS: Neighbor '14.red-213-97-163.staticip.rima-tde.net/213.97.163.14:14600' seems to be available again. Going to add...
-NSTATS: Successfully added neighbor '14.red-213-97-163.staticip.rima-tde.net/213.97.163.14:14600'.
+NSTATS: Neighbor 'example_neighbor/1.2.3.4:14600' seems to be available again. Going to add...
+NSTATS: Successfully added neighbor 'example_neighbor/1.2.3.4:14600'.
 ```
 
 This simply means you are going to mutually exchange transactions with this neighbor again.
