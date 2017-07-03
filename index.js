@@ -140,7 +140,6 @@ function isNeighborAvailable(nb) {
     InetAddress.getByName(pendingNeighbors[nb].host).isReachable(3000);
     return true;
   } catch (err) {
-    print("NSTATS: Could not check availability of " + pendingNeighbors[nb].host + ". Error: " + err);
     return false;
   }
 }
