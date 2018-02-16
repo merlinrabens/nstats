@@ -3,7 +3,7 @@ Neighbor Health Stats - an IOTA Extension Interface module
 
 This IRI extension (IXI) provides a mechanism for continuously checking health of your [IRI](https://github.com/iotaledger/iri) node's neighbors.
 
-## Update
+## *** Update ***
 Please don't use this anymore as there is a much more convenient and elegant solution to neighbor management: https://github.com/SemkoDev/nelson.cli
 
 ## What it Does
